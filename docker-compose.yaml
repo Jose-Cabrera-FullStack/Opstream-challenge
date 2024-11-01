@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./opstream/:/usr/src/opstream/
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env.dev
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DJANGO_SETTINGS_MODULE=opstream.settings
+      - VIRTUAL_ENV=/usr/src/venv
+      - PATH="/usr/src/venv/bin:$PATH"
+    user: appuser
+    restart: always
+    networks:
+      - opstream-network
+
+networks:
+  opstream-network:
+    driver: bridge
