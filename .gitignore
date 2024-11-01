@@ -51,3 +51,6 @@ Thumbs.db
 opstream/__pycache__/
 opstream/migrations/__pycache__/
 
+#Git
+.git/
+.github/

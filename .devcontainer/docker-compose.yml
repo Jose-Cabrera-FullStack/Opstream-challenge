@@ -13,17 +13,21 @@ services:
 
     volumes:
       # Update this to wherever you want VS Code to mount the folder of your project
-      - ..:/workspaces:cached
+      - ..:/usr/src/app:cached
 
     ports:
       - "8000:8000"
-      - "53513:53513"
+      - "5432:5432"
 
-    # Uncomment the next four lines if you will use a ptrace-based debugger like C++, Go, and Rust.
-    # cap_add:
-    #   - SYS_PTRACE
-    # security_opt:
-    #   - seccomp:unconfined
+    # Configuración para debugging
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
+
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
