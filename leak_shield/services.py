@@ -85,13 +85,13 @@ class LeakDetectionManager(Manager):
         _get_messages(): Implements the abstract method to fetch and delete messages from SQS
     """
 
-    def __init__(self, queue_name: str):
+    def __init__(self, queue_name: str, region_name: str = "us-east-1"):
         tasks = {
             'scan_file': LeakScanner.scan_file,
             'scan_message': LeakScanner.scan_message
         }
         super().__init__(queue_name, tasks)
-        self.sqs = boto3.client('sqs')
+        self.sqs = boto3.client('sqs', region_name=region_name)
         self.queue_url = self.sqs.get_queue_url(
             QueueName=queue_name)['QueueUrl']
 
