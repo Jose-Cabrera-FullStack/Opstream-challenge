@@ -19,6 +19,9 @@ Example usage:
 
 import json
 import asyncio
+import boto3
+
+from leak_shield.domains import LeakScanner
 
 
 class Manager:
@@ -62,3 +65,49 @@ class Manager:
                 task = self.tasks.get(task_name)
                 self.loop.create_task(task(*args, **kwargs))
             await asyncio.sleep(1)
+
+
+class LeakDetectionManager(Manager):
+    """
+    A specialized Manager class for handling leak detection tasks from an SQS queue.
+
+    This class extends the Manager class to specifically handle leak detection operations.
+    It automatically configures task mappings for file and message scanning using LeakScanner
+    and sets up the AWS SQS client connection.
+
+    Attributes:
+        queue_name (str): The name of the SQS queue to monitor
+        sqs: Boto3 SQS client instance
+        queue_url (str): The URL of the SQS queue
+        tasks (dict): Predefined mapping of task names to LeakScanner methods
+
+    Methods:
+        _get_messages(): Implements the abstract method to fetch and delete messages from SQS
+    """
+
+    def __init__(self, queue_name: str):
+        tasks = {
+            'scan_file': LeakScanner.scan_file,
+            'scan_message': LeakScanner.scan_message
+        }
+        super().__init__(queue_name, tasks)
+        self.sqs = boto3.client('sqs')
+        self.queue_url = self.sqs.get_queue_url(
+            QueueName=queue_name)['QueueUrl']
+
+    async def _get_messages(self):
+        """Read and pop messages from SQS queue"""
+        response = self.sqs.receive_message(
+            QueueUrl=self.queue_url,
+            MaxNumberOfMessages=10,
+            WaitTimeSeconds=20
+        )
+        messages = response.get('Messages', [])
+
+        for message in messages:
+            self.sqs.delete_message(
+                QueueUrl=self.queue_url,
+                ReceiptHandle=message['ReceiptHandle']
+            )
+
+        return messages
