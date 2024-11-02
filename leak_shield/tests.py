@@ -1,3 +1,31 @@
+"""
+Test module for the Leak Shield application.
+
+This module provides comprehensive test coverage for the leak detection system,
+including both the scanning functionality and AWS SQS integration.
+
+Test Structure:
+    1. LeakScannerTests
+       - Tests for pattern detection in messages and files
+       - Verifies detection of API keys, passwords, and safe content
+       - Tests both synchronous and asynchronous scanning methods
+
+    2. LeakDetectionManagerTests
+       - Tests AWS SQS queue integration
+       - Verifies message processing and task execution
+       - Tests proper handling of AWS credentials and regions
+       - Mocks AWS services for reliable testing
+
+Usage:
+    Run tests using Django's test runner:
+    $ python manage.py test leak_shield.tests or python manage.py test leak_shield
+
+Test Dependencies:
+    - Django TestCase
+    - unittest.mock for AWS service mocking
+    - asyncio for testing asynchronous operations
+"""
+
 import json
 import asyncio
 from unittest import mock
@@ -97,15 +125,8 @@ class LeakDetectionManagerTests(TestCase):
             mock_boto.assert_called_with('sqs', region_name=self.region_name)
 
     @mock.patch('boto3.client')
-    async def async_test_get_messages(self, mock_boto):
-        """
-        Test asynchronous message retrieval from SQS queue.
-
-        Verifies:
-        - Message retrieval
-        - Message deletion after processing
-        - Proper message format handling
-        """
+    def test_get_messages(self, mock_boto):
+        """Run the asynchronous message retrieval test with proper mocking."""
         mock_sqs = mock.MagicMock()
         mock_sqs.receive_message.return_value = {
             'Messages': [{
@@ -120,19 +141,19 @@ class LeakDetectionManagerTests(TestCase):
         mock_sqs.get_queue_url.return_value = {'QueueUrl': 'test-url'}
         mock_boto.return_value = mock_sqs
 
-        with mock.patch('boto3.Session') as mock_session:
-            mock_session.return_value.get_credentials.return_value = mock.MagicMock(
-                access_key='test-key',
-                secret_key='test-secret'
-            )
-            manager = LeakDetectionManager(self.queue_name, self.region_name)
-            messages = await manager._get_messages()
+        async def run_test():
+            with mock.patch('boto3.Session') as mock_session:
+                mock_session.return_value.get_credentials.return_value = mock.MagicMock(
+                    access_key='test-key',
+                    secret_key='test-secret'
+                )
+                manager = LeakDetectionManager(
+                    self.queue_name, self.region_name)
+                messages = await manager._get_messages()
 
-            self.assertEqual(len(messages), 1)
-            self.assertIn('Body', messages[0])
-            mock_sqs.delete_message.assert_called_once()
+                self.assertEqual(len(messages), 1)
+                self.assertIn('Body', messages[0])
+                mock_sqs.delete_message.assert_called_once()
 
-    def test_get_messages(self):
-        """Run the asynchronous message retrieval test."""
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.async_test_get_messages())
+        loop.run_until_complete(run_test())
