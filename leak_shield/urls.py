@@ -1,7 +1,7 @@
 from django.urls import path
-from . import views
+from leak_shield import views
 
-app_name = 'leak_shield'  # Cambiado de APP_NAME a app_name (lowercase)
+app_name = 'leak_shield'
 
 urlpatterns = [
     path('messages/', views.slack_messages, name='slack_messages'),

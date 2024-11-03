@@ -96,7 +96,7 @@ class LeakDetectionManager(Manager):
             QueueName=queue_name)['QueueUrl']
 
     async def _get_messages(self):
-        """Read and pop messages from SQS queue"""
+        """Read and pop messages from SQS queue and process them"""
         response = self.sqs.receive_message(
             QueueUrl=self.queue_url,
             MaxNumberOfMessages=10,
@@ -105,6 +105,15 @@ class LeakDetectionManager(Manager):
         messages = response.get('Messages', [])
 
         for message in messages:
+            body = json.loads(message['Body'])
+            task_name = body.get('task')
+            args = body.get('args', ())
+            kwargs = body.get('kwargs', {})
+            task = self.tasks.get(task_name)
+
+            if task:
+                await task(*args, **kwargs)
+
             self.sqs.delete_message(
                 QueueUrl=self.queue_url,
                 ReceiptHandle=message['ReceiptHandle']

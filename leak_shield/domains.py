@@ -22,7 +22,7 @@ import os
 import re
 from typing import List
 from django.apps import apps
-from asgiref.sync import sync_to_async  # Changed import
+from asgiref.sync import sync_to_async
 
 
 class LeakScanner:
