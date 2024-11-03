@@ -2,14 +2,22 @@
 
 ## Prerequisites
 - Python 3.11 or higher
-- Docker and Docker Compose (optional)
+- Docker and Docker Compose
+- AWS account with SQS access
+- Slack workspace admin access
 
 ## Installation
 
 1. Clone the repository:
 
 ```bash
-git clone 
+git clone
+```
+
+2. Copy environment files:
+```bash
+cp .env.dev.example .env.dev
+cp .env.prod.example .env.prod
 ```
 
 ## Project Structure
@@ -82,6 +90,26 @@ The Docker configuration includes:
   - Sets environment variables
   - Configures networking
 
+## AWS Configuration
+
+The project uses AWS SQS to send messages to Slack. To set up the AWS configuration:
+
+1. Create an AWS account and navigate to the SQS service.
+2. Create a new queue and note the queue URL.
+3. Create an IAM user with programmatic access and attach the following policy:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "sqs:*",
+            "Resource": "arn:aws:sqs:us-east-1:123456789012:my-queue"
+        }
+    ]
+}
+```
+
 ## Dependencies
 
 The project uses the following main packages:
@@ -92,12 +120,28 @@ The project uses the following main packages:
 - Gunicorn 21.2.0
 - Django CORS Headers 4.2.0
 
-## Development Commands
+## Development local Commands
 
 - `python manage.py makemigrations`: Create database migrations
 - `python manage.py migrate`: Apply database migrations
 - `python manage.py createsuperuser`: Create admin user
 - `python manage.py test`: Run tests
+
+## Development Production Commands
+
+`docker-compose -f docker-compose.prod.yml build`: Build the production image
+`docker-compose -f docker-compose.prod.yml up -d`: Run the production image
+`docker-compose -f docker-compose.prod.yml exec web python manage.py migrate`: Apply migrations
+
+
+## Architecture
+
+The system consists of:
+
+- Django web application
+- PostgreSQL database
+- AWS SQS queue for async processing
+- Slack event handlers
 
 ## License
 
