@@ -6,12 +6,14 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from slack_sdk.signature import SignatureVerifier
 from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class SlackConfig:
     """
     Static configuration class for Slack API integration.
-    Handles authentication, client initialization and basic message operations.
     """
     _client = None
     _bot_token = None
@@ -21,7 +23,21 @@ class SlackConfig:
         """Initialize Slack configuration and client"""
         cls._validate_env()
         cls._bot_token = settings.SLACK_BOT_TOKEN
-        cls._client = WebClient(token=cls._bot_token)
+        cls._client = WebClient(
+            token=cls._bot_token,
+            headers={'Content-Type': 'application/json; charset=utf-8'}
+        )
+        # Verificar la autenticación
+        try:
+            auth_test = cls._client.auth_test()
+            if not auth_test['ok']:
+                raise ValueError(
+                    f"Slack authentication failed: {auth_test['error']}")
+            logger.info(
+                f"Authenticated as {auth_test['user']} in team {auth_test['team']}")
+        except SlackApiError as e:
+            logger.error(f"Slack authentication error: {str(e)}")
+            raise
 
     @staticmethod
     def _validate_env() -> None:
@@ -119,11 +135,28 @@ class SlackConfig:
             Dict containing the messages
         """
         try:
-            return cls.get_client().conversations_history(
-                channel=channel,
+            try:
+                channel_info = cls.get_client().conversations_info(channel=channel)
+                channel_id = channel_info['channel']['id']
+            except SlackApiError:
+                channel_id = channel
+
+            response = cls.get_client().conversations_history(
+                channel=channel_id,
                 limit=limit
             )
+
+            if not response['ok']:
+                logger.error(
+                    f"Slack API error: {response.get('error', 'Unknown error')}")
+                raise SlackApiError(
+                    f"API call failed: {response.get('error')}", response)
+
+            return response
+
         except SlackApiError as e:
+            logger.error(f"Failed to fetch messages: {str(e)}")
+            logger.error(f"Response data: {e.response}")
             raise Exception(f"Failed to fetch messages: {str(e)}")
 
     @classmethod

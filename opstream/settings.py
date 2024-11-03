@@ -139,3 +139,19 @@ SLACK_SIGNING_SECRET = os.environ.get("SLACK_SIGNING_SECRET")
 SLACK_VERIFICATION = os.environ.get("SLACK_VERIFICATION")
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 SLACK_DEFAULT_CHANNEL = os.environ.get("SLACK_DEFAULT_CHANNEL", "general")
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'leak_shield': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
