@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Slack Messages - Channel: {{ channel_id }}</h2>
+
+    {% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    {% if messages %}
+    <div class="list-group">
+        {% for message in messages %}
+        <div class="list-group-item">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ message.user }}</h5>
+                <small>{{ message.ts|date:"Y-m-d H:i:s" }}</small>
+            </div>
+            <p class="mb-1">{{ message.text }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No messages found.</p>
+    {% endif %}
+</div>
+{% endblock %}

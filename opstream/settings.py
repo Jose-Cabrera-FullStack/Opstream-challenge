@@ -59,7 +59,7 @@ ROOT_URLCONF = 'opstream.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # Agregar esta línea
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,3 +131,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# SLACK API
+SLACK_CLIENT_ID = os.environ.get("SLACK_CLIENT_ID")
+SLACK_CLIENT_SECRET = os.environ.get("SLACK_CLIENT_SECRET")
+SLACK_SIGNING_SECRET = os.environ.get("SLACK_SIGNING_SECRET")
+SLACK_VERIFICATION = os.environ.get("SLACK_VERIFICATION")
+SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
+SLACK_DEFAULT_CHANNEL = os.environ.get("SLACK_DEFAULT_CHANNEL", "general")

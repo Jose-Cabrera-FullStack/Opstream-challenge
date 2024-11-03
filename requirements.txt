@@ -15,3 +15,6 @@ s3transfer==0.10.3
 six==1.16.0
 sqlparse==0.5.1
 urllib3==2.2.3
+slack_sdk==3.33.3
+tzdata==2024.2
+colorama==0.4.4

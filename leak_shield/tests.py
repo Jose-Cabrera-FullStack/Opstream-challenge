@@ -26,6 +26,9 @@ Test Dependencies:
     - asyncio for testing asynchronous operations
 """
 
+from slack_sdk import WebClient
+import logging
+import sys
 import json
 import asyncio
 from unittest import mock
@@ -157,3 +160,11 @@ class LeakDetectionManagerTests(TestCase):
 
         loop = asyncio.get_event_loop()
         loop.run_until_complete(run_test())
+
+
+# test.py
+# Enable debug logging
+logging.basicConfig(level=logging.DEBUG)
+# Verify it works
+client = WebClient()
+api_response = client.api_test()
