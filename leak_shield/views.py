@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.conf import settings
-from .infrastructures import SlackConfig
+from leak_shield.infrastructures import SlackConfig
 
 
 def slack_messages(request, channel_id=None):
