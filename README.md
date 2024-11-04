@@ -104,6 +104,25 @@ The Docker configuration includes:
   - Sets environment variables
   - Configures networking
 
+
+## Development Environment (Local) Commands
+
+Inside the container, you can run the following commands (`docker-compose -it exec id-container bash`):
+
+- `python manage.py makemigrations`: Create database migrations
+- `python manage.py migrate`: Apply database migrations
+- `python manage.py createsuperuser`: Create admin user
+- `python manage.py test`: Run all tests
+- `python manage.py test leak_shield`: Run leak_shield tests
+
+## Production Environment Commands
+
+`docker-compose -f docker-compose.prod.yml build`: Build the production image.
+
+`docker-compose -f docker-compose.prod.yml up -d`: Run the production image.
+
+`docker-compose -f docker-compose.prod.yml exec web python manage.py migrate`: Apply migrations.
+
 ## AWS Configuration
 
 The project uses AWS SQS to send messages to Slack. To set up the AWS configuration:
@@ -123,23 +142,6 @@ The project uses AWS SQS to send messages to Slack. To set up the AWS configurat
     ]
 }
 ```
-
-## Development local Commands
-
-Inside the container, you can run the following commands (`docker-compose -it exec id-container bash`):
-
-- `python manage.py makemigrations`: Create database migrations
-- `python manage.py migrate`: Apply database migrations
-- `python manage.py createsuperuser`: Create admin user
-- `python manage.py test`: Run tests
-
-## Development Production Commands
-
-`docker-compose -f docker-compose.prod.yml build`: Build the production image.
-
-`docker-compose -f docker-compose.prod.yml up -d`: Run the production image.
-
-`docker-compose -f docker-compose.prod.yml exec web python manage.py migrate`: Apply migrations.
 
 ## Architecture
 
