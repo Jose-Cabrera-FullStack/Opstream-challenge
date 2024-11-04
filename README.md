@@ -1,4 +1,4 @@
-# OpStream Project Setup Guide
+# Opstream Project Setup Guide
 
 ## Prerequisites
 - Python 3.11 or higher
