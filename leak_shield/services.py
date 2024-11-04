@@ -21,7 +21,7 @@ import json
 import asyncio
 import boto3
 
-from leak_shield.domains.leak_scanner import LeakScanner
+from leak_shield.adapters import LeakScannerAdapter
 
 
 class Manager:
@@ -87,8 +87,8 @@ class LeakDetectionManager(Manager):
 
     def __init__(self, queue_name: str, region_name: str = "us-east-1"):
         tasks = {
-            'scan_file': LeakScanner.scan_file,
-            'scan_message': LeakScanner.scan_message
+            'scan_file': LeakScannerAdapter.scan_file,
+            'scan_message': LeakScannerAdapter.scan_message
         }
         super().__init__(queue_name, tasks)
         self.sqs = boto3.client('sqs', region_name=region_name)
@@ -105,18 +105,22 @@ class LeakDetectionManager(Manager):
         messages = response.get('Messages', [])
 
         for message in messages:
-            body = json.loads(message['Body'])
-            task_name = body.get('task')
-            args = body.get('args', ())
-            kwargs = body.get('kwargs', {})
-            task = self.tasks.get(task_name)
+            try:
+                body = json.loads(message['Body'])
+                task_name = body.get('task')
+                args = body.get('args', ())
+                kwargs = body.get('kwargs', {})
+                task = self.tasks.get(task_name)
 
-            if task:
-                await task(*args, **kwargs)
-
-            self.sqs.delete_message(
-                QueueUrl=self.queue_url,
-                ReceiptHandle=message['ReceiptHandle']
-            )
+                if task:
+                    await task(*args, **kwargs)
+            except json.JSONDecodeError:
+                # Log error or handle invalid JSON
+                pass
+            finally:
+                self.sqs.delete_message(
+                    QueueUrl=self.queue_url,
+                    ReceiptHandle=message['ReceiptHandle']
+                )
 
         return messages
