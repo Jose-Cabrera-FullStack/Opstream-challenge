@@ -143,6 +143,43 @@ The system consists of:
 - AWS SQS queue for async processing
 - Slack event handlers
 
+## Roadmap
+
+Follow the next steps:
+
+[✓] 1. Open a free Slack account https://slack.com/pricing/free
+
+[✓] 2. Use Slack events api https://api.slack.com/events-api to listen to messages
+
+[✓] 3. Create a simple Data Loss Prevention tool that given a file, open its content and try to look for patterns (for example: a credit card number), using a list of regular expressions, make it possible to manage those patterns using django admin
+
+[✓] 4. Use django admin to also show messages that were caught by the DLP tool, show the message, its content and the pattern that caught it
+
+[✓] 5. Use the class above to create a container with distributed tasks to search for leaks in files and messages
+
+[✓] 6. Write unit tests where consider appropriate
+
+[✓] 7. BONUS: add an action flow, so when DLP is giving a negative response, saying that the message contains a leak, the system should switch the message on slack with a message saying that the original message was blocked
+
+Pending items that could enhance the solution:
+[✓] 1. Add Docker configuration for containerization.
+
+[✓] 2. Add PostgreSQL database configuration.
+
+[✓] 3. Add AWS SQS configuration and credentials setup.
+
+[✓] 4. Add complete README with:
+
+     - Project setup instructions
+     - How to run the tests
+     - How to deploy the system
+
+## Next Steps
+
+1. Add support for more file types (currently only text files)
+2. Implement proper error handling and logging
+3. Add API documentation
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
