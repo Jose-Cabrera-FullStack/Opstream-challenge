@@ -108,15 +108,23 @@ class LeakDetectionManager(Manager):
             try:
                 body = json.loads(message['Body'])
                 task_name = body.get('task')
-                args = body.get('args', ())
-                kwargs = body.get('kwargs', {})
-                task = self.tasks.get(task_name)
 
-                if task:
-                    await task(*args, **kwargs)
-            except json.JSONDecodeError:
-                # Log error or handle invalid JSON
-                pass
+                if task_name == 'scan_message':
+                    channel_id = body.get('channel_id')
+                    user_id = body.get('user_id')
+                    content = body.get('content')
+
+                    if all([channel_id, user_id, content]):
+                        await LeakScannerAdapter.scan_message(channel_id, user_id, content)
+
+                elif task_name == 'scan_file':
+                    file_path = body.get('file_path')
+                    if file_path:
+                        await LeakScannerAdapter.scan_file(file_path)
+
+            except (json.JSONDecodeError, KeyError) as e:
+                # TODO: Log error properly
+                print(f"Error processing message: {e}")
             finally:
                 self.sqs.delete_message(
                     QueueUrl=self.queue_url,
