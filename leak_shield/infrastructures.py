@@ -23,13 +23,13 @@ class SlackConfig:
     def initialize(cls) -> None:
         """Initialize Slack configuration and client"""
         cls._validate_env()
-        cls._bot_token = settings.SLACK_BOT_TOKEN
-        cls._client = WebClient(
-            token=cls._bot_token,
-            headers={'Content-Type': 'application/json; charset=utf-8'}
-        )
-        # Verificar la autenticación
+
         try:
+            cls._bot_token = settings.SLACK_BOT_TOKEN
+            cls._client = WebClient(
+                token=cls._bot_token,
+                headers={'Content-Type': 'application/json; charset=utf-8'}
+            )
             auth_test = cls._client.auth_test()
             if not auth_test['ok']:
                 raise ValueError(
