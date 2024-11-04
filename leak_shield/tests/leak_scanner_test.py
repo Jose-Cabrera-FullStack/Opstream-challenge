@@ -1,6 +1,6 @@
 from leak_shield.domains.leak_scanner import LeakScanner
 from leak_shield.models import Pattern
-from .base_tests import AsyncTestCase
+from tests.base_tests import AsyncTestCase
 
 
 class LeakScannerTests(AsyncTestCase):

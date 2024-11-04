@@ -1,12 +1,13 @@
 """
 Slack infrastructure configuration and utilities.
 """
+import logging
+
 from typing import Dict, Any
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from slack_sdk.signature import SignatureVerifier
 from django.conf import settings
-import logging
 
 logger = logging.getLogger(__name__)
 

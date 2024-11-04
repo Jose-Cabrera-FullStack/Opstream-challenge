@@ -64,7 +64,7 @@ class LeakDetectionManagerTests(AsyncTestCase):
         self.loop.run_until_complete(
             self.__class__.test_get_messages_async(self))
 
-    @mock.patch('leak_shield.domains.LeakScanner.scan_file')
+    @mock.patch('leak_shield.domains.leak_scanner.LeakScanner.scan_file')
     @mock.patch('boto3.client')
     async def test_scan_file_task_execution(self, mock_boto, mock_scan_file):
         mock_sqs = mock.MagicMock()
@@ -95,7 +95,7 @@ class LeakDetectionManagerTests(AsyncTestCase):
 
         mock_scan_file.assert_called_once_with('/path/to/test.txt')
 
-    @mock.patch('leak_shield.domains.LeakScanner.scan_message')
+    @mock.patch('leak_shield.domains.leak_scanner.LeakScanner.scan_message')
     @mock.patch('boto3.client')
     async def test_scan_message_task_execution(self, mock_boto, mock_scan_message):
         mock_sqs = mock.MagicMock()

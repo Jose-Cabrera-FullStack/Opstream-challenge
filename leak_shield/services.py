@@ -21,7 +21,7 @@ import json
 import asyncio
 import boto3
 
-from leak_shield.domains import LeakScanner
+from leak_shield.domains.leak_scanner import LeakScanner
 
 
 class Manager:
