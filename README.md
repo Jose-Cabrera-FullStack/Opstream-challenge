@@ -179,6 +179,8 @@ Pending items that could enhance the solution:
 1. Add support for more file types (currently only text files)
 2. Implement proper error handling and logging
 3. Add API documentation
+4. Add view to show messages caught by the DLP tool.
+5. Add support for more patterns and regex rules
 
 ## License
 
