@@ -1,4 +1,3 @@
-import os
 from unittest import mock
 from asgiref.sync import sync_to_async
 from leak_shield.adapters import LeakScannerAdapter
@@ -24,7 +23,6 @@ class LeakScannerAdapterTests(AsyncTestCase):
     @mock.patch('os.path.exists')
     @mock.patch('builtins.open', create=True)
     async def test_scan_file_with_leak(self, mock_open, mock_exists):
-        # Setup mocks
         mock_exists.return_value = True
         mock_open.return_value.__enter__.return_value.read.return_value = 'secret=123456'
 
@@ -69,7 +67,6 @@ class LeakScannerAdapterTests(AsyncTestCase):
             message=message
         )
 
-        # Verificar ScannedMessage usando select_related para evitar consultas adicionales
         scanned_message = await sync_to_async(lambda: ScannedMessage.objects.select_related('pattern').filter(
             channel_id="test-channel"
         ).first())()
@@ -79,7 +76,6 @@ class LeakScannerAdapterTests(AsyncTestCase):
         pattern_id = await sync_to_async(lambda: scanned_message.pattern.id)()
         self.assertEqual(pattern_id, self.test_pattern.id)
 
-        # Verificar ActionLog
         action_log = await sync_to_async(lambda: ActionLog.objects.select_related('message').filter(
             message=scanned_message
         ).first())()
@@ -97,7 +93,6 @@ class LeakScannerAdapterTests(AsyncTestCase):
 
         results = await LeakScannerAdapter.scan_file('test.txt')
 
-        # Verificar ScannedFile usando select_related
         scanned_file = await sync_to_async(lambda: ScannedFile.objects.select_related('pattern').filter(
             file_name='test.txt'
         ).first())()
@@ -107,7 +102,6 @@ class LeakScannerAdapterTests(AsyncTestCase):
         pattern_id = await sync_to_async(lambda: scanned_file.pattern.id)()
         self.assertEqual(pattern_id, self.test_pattern.id)
 
-        # Verificar ActionLog
         action_log = await sync_to_async(lambda: ActionLog.objects.select_related('file').filter(
             file=scanned_file
         ).first())()
@@ -117,7 +111,6 @@ class LeakScannerAdapterTests(AsyncTestCase):
 
     async def test_multiple_patterns_in_message(self):
         """Test handling multiple pattern matches in a single message"""
-        # Create another test pattern
         another_pattern = await sync_to_async(Pattern.objects.create)(
             name='password_pattern',
             regex=r'password=([^\s]+)',
@@ -133,13 +126,11 @@ class LeakScannerAdapterTests(AsyncTestCase):
 
         self.assertEqual(len(results), 2)
 
-        # Verify two ScannedMessage records were created
         scanned_messages = await sync_to_async(list)(
             ScannedMessage.objects.filter(channel_id="test-channel")
         )
         self.assertEqual(len(scanned_messages), 2)
 
-        # Verify two ActionLog records were created
         action_logs = await sync_to_async(list)(
             ActionLog.objects.filter(message__in=scanned_messages)
         )
@@ -154,7 +145,6 @@ class LeakScannerAdapterTests(AsyncTestCase):
             message=message
         )
 
-        # Verificar que solo se creó un registro
         count = await sync_to_async(lambda: ScannedMessage.objects.filter(
             channel_id="test-channel",
             pattern=self.test_pattern
