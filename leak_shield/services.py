@@ -22,6 +22,7 @@ import asyncio
 import boto3
 
 from leak_shield.adapters import LeakScannerAdapter
+from django.conf import settings
 
 
 class Manager:
@@ -85,15 +86,21 @@ class LeakDetectionManager(Manager):
         _get_messages(): Implements the abstract method to fetch and delete messages from SQS
     """
 
-    def __init__(self, queue_name: str, region_name: str = "us-east-1"):
+    def __init__(self, queue_name: str = None, region_name: str = None):
         tasks = {
             'scan_file': LeakScannerAdapter.scan_file,
             'scan_message': LeakScannerAdapter.scan_message
         }
-        super().__init__(queue_name, tasks)
-        self.sqs = boto3.client('sqs', region_name=region_name)
+        super().__init__(queue_name or settings.AWS_SQS_QUEUE_NAME, tasks)
+
+        self.sqs = boto3.client(
+            'sqs',
+            region_name=region_name or settings.AWS_DEFAULT_REGION,
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+        )
         self.queue_url = self.sqs.get_queue_url(
-            QueueName=queue_name)['QueueUrl']
+            QueueName=self.queue)['QueueUrl']
 
     async def _get_messages(self):
         """Read and pop messages from SQS queue and process them"""

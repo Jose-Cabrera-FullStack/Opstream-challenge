@@ -140,6 +140,12 @@ SLACK_VERIFICATION = os.environ.get("SLACK_VERIFICATION")
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 SLACK_DEFAULT_CHANNEL = os.environ.get("SLACK_DEFAULT_CHANNEL", "general")
 
+# AWS Settings
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_DEFAULT_REGION = os.environ.get('AWS_DEFAULT_REGION', 'us-east-1')
+AWS_SQS_QUEUE_NAME = os.environ.get('AWS_SQS_QUEUE_NAME', 'opstream-queue')
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -152,6 +158,14 @@ LOGGING = {
         'leak_shield': {
             'handlers': ['console'],
             'level': 'DEBUG',
+        },
+        'boto3': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'botocore': {
+            'handlers': ['console'],
+            'level': 'INFO',
         },
     },
 }
